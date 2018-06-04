@@ -4,18 +4,18 @@
 #include <stdlib.h>
 
 #define OK 0
-#define offsetof(TYPE, MEMBER) ((size_t) & ((TYPE *)0)->MEMBER)
+#define offsetof(TYPE, MEMBER) ((size_t) & ((TYPE *)0)->MEMBER)   //标准函数，结构体成员偏移地址
 #define container_of(ptr, type, member) ({          \
     const typeof(((type *)0)->member)*__mptr = (ptr);    \
          (type *)((char *)__mptr - offsetof(type, member)); })
-
+                                                                 //标准函数，根据结构体成员地址，计算结构体起始地址
 typedef struct __interface interface;
 
 struct __interface
 {
-    int (*parse_param)(interface * p, char *buffer, int len);
-    int (*reply_ack)(interface * p);
-    int (*process_cmd)(interface * p);
+    int (*parse_param)(interface * p, char *buffer, int len);   //过程处理
+    int (*reply_ack)(interface * p);                            //回复ACK
+    int (*process_cmd)(interface * p);                          //处理命令
 };
 
 typedef struct
@@ -112,6 +112,7 @@ interface *CreateCMD2()
     return &p->base;
 }
 
+//根据形参填充不同结构体
 interface *get_processer(char cmd_type)
 {
     interface *p = NULL;
