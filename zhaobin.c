@@ -141,7 +141,7 @@ void func(char *buffer, int len)
     }
     free(p);
 }
-
+// 主函数
 int main(int argc, char const *argv[])
 {
     char buffer[] = {1, 2, 3, 4, 5, 6};
