@@ -8,7 +8,10 @@
 #define container_of(ptr, type, member) ({          \
     const typeof(((type *)0)->member)*__mptr = (ptr);    \
          (type *)((char *)__mptr - offsetof(type, member)); })
-                                                                 //标准函数，根据结构体成员地址，计算结构体起始地址
+                                                                 //标准函数，根据结构体成员地址，计算结构体起始地
+
+// container_of(ptr,type,member)    已知结构体type的成员member的地址ptr，求解结构体type的起始地址
+
 typedef struct __interface interface;
 
 struct __interface
@@ -20,34 +23,34 @@ struct __interface
 
 typedef struct
 {
-    interface base;
-    void (*ext)(void);
+    interface base;         // 基础结构体 基础函数
+    void (*ext)(void);      // 拓展函数
 } CMD1;
 
 typedef struct
 {
-    interface base;
-    void (*xujingke)(void);
-    void (*jintian)(void);
+    interface base;          //基础函数
+    void (*xujingke)(void);  //拓展函数1
+    void (*jintian)(void);   //拓展函数2
 } CMD2;
 
 int cmd1_parse(interface *p, char *buffer, int len)
 {
-    CMD1 *p_cmd = container_of(p, CMD1, base);
+    CMD1 *p_cmd = container_of(p, CMD1, base);  // 已知结构体 CMD1 的成员 base 的地址 p ，求解结构体CMD1的起始地址
     p_cmd->ext();
     printf("parse\n");
     return OK;
 }
 int cmd1_ack(interface *p)
 {
-    CMD1 *p_cmd = container_of(p, CMD1, base);
+    CMD1 *p_cmd = container_of(p, CMD1, base);  // 已知结构体 CMD1 的成员 base 的地址 p ，求解结构体CMD1的起始地址
     p_cmd->ext();
     printf("ack\n");
     return OK;
 }
 int cmd1_process(interface *p)
 {
-    CMD1 *p_cmd = container_of(p, CMD1, base);
+    CMD1 *p_cmd = container_of(p, CMD1, base); // 已知结构体 CMD1 的成员 base 的地址 p ，求解结构体CMD1的起始地址
     p_cmd->ext();
     printf("process\n");
     return OK;
@@ -59,7 +62,7 @@ void cmd1_ext(void)
 
 int cmd2_parse(interface *p, char *buffer, int len)
 {
-    CMD2 *p_cmd = container_of(p, CMD2, base);
+    CMD2 *p_cmd = container_of(p, CMD2, base); // 已知结构体 CMD2 的成员 base 的地址 p ，求解结构体CMD2的起始地址
     p_cmd->xujingke();
     p_cmd->jintian();
     printf("parse\n");
@@ -67,7 +70,7 @@ int cmd2_parse(interface *p, char *buffer, int len)
 }
 int cmd2_ack(interface *p)
 {
-    CMD2 *p_cmd = container_of(p, CMD2, base);
+    CMD2 *p_cmd = container_of(p, CMD2, base); // 已知结构体 CMD2 的成员 base 的地址 p ，求解结构体CMD2的起始地址
     p_cmd->xujingke();
     p_cmd->jintian();
     printf("ack\n");
@@ -75,7 +78,7 @@ int cmd2_ack(interface *p)
 }
 int cmd2_process(interface *p)
 {
-    CMD2 *p_cmd = container_of(p, CMD2, base);
+    CMD2 *p_cmd = container_of(p, CMD2, base); // 已知结构体 CMD2 的成员 base 的地址 p ，求解结构体CMD2的起始地址
     p_cmd->xujingke();
     p_cmd->jintian();
     printf("process\n");
@@ -91,7 +94,7 @@ void jintian(void)
     printf("jintian");
 }
 
-interface *CreateCMD1()
+interface *CreateCMD1()         // 填充CMD1 结构体
 {
     CMD1 *p = (CMD1 *)malloc(sizeof(CMD1));
     p->base.parse_param = cmd1_parse;
@@ -101,7 +104,7 @@ interface *CreateCMD1()
     return &p->base;
 }
 
-interface *CreateCMD2()
+interface *CreateCMD2()         // 填充CMD2 结构体
 {
     CMD2 *p = (CMD2 *)malloc(sizeof(CMD2));
     p->base.parse_param = cmd2_parse;
@@ -112,17 +115,17 @@ interface *CreateCMD2()
     return &p->base;
 }
 
-//根据形参填充不同结构体
+//根据形参（命令）填充不同结构体
 interface *get_processer(char cmd_type)
 {
-    interface *p = NULL;
+    interface *p = NULL;  
     switch (cmd_type)
     {
     case 1:
-        p = CreateCMD1();
+        p = CreateCMD1();     // 装载命令1  填充CMD1 结构体
         break;
     case 2:
-        p = CreateCMD2();
+        p = CreateCMD2();     // 装载命令2  填充CMD2 结构体
         break;
     }
     return p;
@@ -130,14 +133,14 @@ interface *get_processer(char cmd_type)
 
 void func(char *buffer, int len)
 {
-    interface *p = get_processer(buffer[0]);
-    if (p == NULL)
+    interface *p = get_processer(buffer[0]); // 装载结构体指针
+    if (p == NULL)                           
         return;
-    int ret = p->parse_param(p, buffer, len);
+    int ret = p->parse_param(p, buffer, len); // 执行 对应 parse_param 解析函数
     if (ret == OK)
     {
-        p->reply_ack(p);
-        p->process_cmd(p);
+        p->reply_ack(p);                      // 回复 对应 ACK
+        p->process_cmd(p);                    // 执行 对应 命令
     }
     free(p);
 }
